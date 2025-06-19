@@ -508,12 +508,6 @@
             color: #007bff !important;
         }
     </style>
-    <!-- Firebase App (the core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <!-- Add Firestore -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    <!-- (اختياري) Analytics -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
 </head>
 <body>
     <!-- صفحة تسجيل الدخول -->
@@ -738,27 +732,10 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
     <script>
-    // Firebase configuration and initialization
-    const firebaseConfig = {
-      apiKey: "AIzaSyD6g-DeXjamxhCcK5JvjT86a-xmgzplzgA",
-      authDomain: "realsystem-aa5cc.firebaseapp.com",
-      projectId: "realsystem-aa5cc",
-      storageBucket: "realsystem-aa5cc.firebasestorage.app",
-      messagingSenderId: "250505499688",
-      appId: "1:250505499688:web:d42bb7317717603387111d",
-      measurementId: "G-6WF7TQXG27"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    // (اختياري) Analytics
-    if (typeof firebase.analytics === 'function') {
-      firebase.analytics();
-    }
-
     //    users
         const users = [
             { username: 'admin', password: '0000', role: 'admin', name: ' Manger' },
@@ -766,7 +743,6 @@
             { username: 'Adam', password: '2222', role: 'employee', name: 'Adam Ali' },
         ];
 
-        // governorates ثابتة محلياً
         const governorates = {
             'القاهرة': ['المعادي', 'المقطم', 'مدينة نصر', 'الزمالك', 'الدقي'],
             'الجيزة': ['الدقي', 'المهندسين', 'الهرم', 'فيصل', 'العجوزة'],
@@ -1367,22 +1343,26 @@
         // إضافة تذكرة جديدة
         newTicketForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            
             if (!currentCustomer) {
                 alert('الرجاء تحديد عميل أولاً');
                 return;
             }
+            
             const type = ticketType.value;
             const subtype = ticketSubtype.value;
             const description = document.getElementById('ticket-description').value;
             const date = document.getElementById('ticket-date').value;
             const employee = document.getElementById('employee-name').value;
             const customerId = document.getElementById('customer-id').value;
+            
             if (!type || !subtype || !description || !date) {
                 showToast('Please fill in all required fields', 'error');
                 return;
             }
+            
             const newTicket = {
-                // id سيأخذ من Firestore
+                id: getNextTicketId(),
                 type,
                 subtype,
                 description,
@@ -1393,6 +1373,7 @@
                 status: type === 'inquiry' ? 'closed' : 'open',
                 createdAt: new Date().toISOString()
             };
+            
             if (type === 'maintenance') {
                 const schedule = document.getElementById('maintenance-schedule').value;
                 if (!schedule) {
@@ -1401,12 +1382,15 @@
                 }
                 newTicket.schedule = schedule;
             }
-            db.collection('tickets').add(newTicket)
-                .then(() => {
-                    showToast('Ticket saved successfully', 'success');
-                    clearTicketForm();
-                })
-                .catch(() => showToast('Error saving ticket', 'error'));
+            
+            tickets.push(newTicket);
+            showToast('Ticket saved successfully', 'success');
+            clearTicketForm();
+            
+            // تحديث عرض التذاكر
+            if (currentCustomer) {
+                showCustomerProfile(currentCustomer);
+            }
         });
 
         // تفريغ نموذج التذكرة
@@ -1452,35 +1436,40 @@
         // حفظ عميل جديد
         customerForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            
             const name = document.getElementById('new-customer-name').value;
             const phone = document.getElementById('new-customer-phone').value;
             const phone2 = document.getElementById('new-customer-phone2').value;
             const governorate = document.getElementById('new-customer-governorate').value;
             const region = document.getElementById('new-customer-region').value;
+            
             if (!name || !phone || !governorate || !region) {
                 alert('الرجاء ملء جميع الحقول المطلوبة');
                 return;
             }
+            
             // التحقق من عدم وجود عميل بنفس رقم الهاتف
             const existingCustomer = customers.find(c => c.phone === phone || (phone2 && c.phone2 === phone2));
             if (existingCustomer) {
                 showToast('يوجد بالفعل عميل بهذا الرقم!', 'error');
                 return;
             }
+            
             const newCustomer = {
+                id: generateId(),
                 name,
                 phone,
                 phone2,
                 governorate,
                 region
             };
-            db.collection('customers').add(newCustomer)
-                .then(docRef => {
-                    showToast('Customer saved successfully', 'success');
-                    showEmployeeDashboard();
-                    // سيتم عرض العميل الجديد تلقائياً عند وصوله من onSnapshot
-                })
-                .catch(() => showToast('Error saving customer', 'error'));
+            
+            customers.push(newCustomer);
+            showToast('Customer saved successfully', 'success');
+            
+            // تفعيل لوحة الموظف ثم عرض بروفايل العميل الجديد
+            showEmployeeDashboard();
+            showCustomerProfile(newCustomer);
         });
 
         // إلغاء إنشاء عميل جديد
@@ -1541,23 +1530,47 @@
 
         // تحديث حالة التذكرة
         function updateTicketStatus(ticketId, newStatus) {
-            db.collection('tickets').doc(ticketId).update({ status: newStatus })
-                .then(() => showToast('Ticket status updated', 'success'))
-                .catch(() => showToast('Error updating status', 'error'));
+            const ticketIndex = tickets.findIndex(t => t.id === ticketId);
+            
+            if (ticketIndex !== -1) {
+                tickets[ticketIndex].status = newStatus;
+                showToast('Ticket status updated', 'success');
+                loadAdminTickets();
+                
+                // إذا كان العميل معروضًا، قم بتحديث عرض التذاكر
+                if (currentCustomer) {
+                    showCustomerProfile(currentCustomer);
+                }
+            }
         }
 
         // تحديث رد المدير على الشكوى
         function updateAdminReply(ticketId, reply) {
-            db.collection('tickets').doc(ticketId).update({ adminReply: reply })
-                .then(() => showToast('Reply saved', 'success'))
-                .catch(() => showToast('Error saving reply', 'error'));
+            const ticketIndex = tickets.findIndex(t => t.id === ticketId);
+            
+            if (ticketIndex !== -1) {
+                tickets[ticketIndex].adminReply = reply;
+                showToast(' reply saved', 'success');
+                loadAdminTickets();
+                
+                // إذا كان العميل معروضًا، قم بتحديث عرض التذاكر
+                if (currentCustomer) {
+                    showCustomerProfile(currentCustomer);
+                }
+            }
         }
 
         // أضف دالة تحديث الملحوظة بعد دالة updateAdminReply مباشرة
         function updateMaintenanceNote(ticketId, note) {
-            db.collection('tickets').doc(ticketId).update({ note: note })
-                .then(() => showToast('Note saved', 'success'))
-                .catch(() => showToast('Error saving note', 'error'));
+            const ticketIndex = tickets.findIndex(t => t.id === ticketId);
+            if (ticketIndex !== -1) {
+                tickets[ticketIndex].note = note;
+                showToast('Note saved', 'success');
+                loadAdminTickets();
+                if (currentCustomer) {
+                    showCustomerProfile(currentCustomer);
+                }
+            }
         }
 
         // وظائف مساعدة
@@ -1829,10 +1842,38 @@
 
         // حذف التذكرة
         function deleteTicket(ticketId) {
-            db.collection('tickets').doc(ticketId).delete()
-                .then(() => showToast('Ticket deleted successfully', 'success'))
-                .catch(() => showToast('Error deleting ticket', 'error'));
+            const idx = tickets.findIndex(t => t.id === ticketId);
+            if (idx !== -1) {
+                tickets.splice(idx, 1);
+                showToast('Ticket deleted successfully', 'success');
+                loadAdminTickets();
+                if (currentCustomer) {
+                    showCustomerProfile(currentCustomer);
+                }
+            }
         }
+
+        // تحميل العملاء والتذاكر من Firestore في الوقت الحقيقي
+        db.collection('customers').onSnapshot(snapshot => {
+            customers = [];
+            snapshot.forEach(doc => {
+                customers.push({ id: doc.id, ...doc.data() });
+            });
+            // تحديث الواجهة إذا لزم الأمر
+            if (currentCustomer) {
+                const updated = customers.find(c => c.id === currentCustomer.id);
+                if (updated) showCustomerProfile(updated);
+            }
+        });
+        db.collection('tickets').onSnapshot(snapshot => {
+            tickets = [];
+            snapshot.forEach(doc => {
+                tickets.push({ id: doc.id, ...doc.data() });
+            });
+            // تحديث الواجهة
+            loadAdminTickets();
+            if (currentCustomer) showCustomerProfile(currentCustomer);
+        });
     </script>
     <!-- Custom Footer -->
     <div class="custom-footer" id="login-footer">
