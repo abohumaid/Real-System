@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ahmed mohamed</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+
+    <!-- small icon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"/>
+   
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .main-container {
+            display: none;
+            padding: 20px;
+        }
+        .form-section {
+            display: none;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+        }
+        .active-form {
+            display: block;
+        }
+        .ticket-card {
+            border: 2px dashed #007bff;
+            border-radius: 18px 18px 18px 18px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+            background: #fff;
+            position: relative;
+            margin-bottom: 18px;
+            overflow: visible;
+        }
+        .ticket-card::before, .ticket-card::after {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            background: #f5f5f5;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        .ticket-card::before {
+            left: -13px;
+            top: 18px;
+        }
+        .ticket-card::after {
+            right: -13px;
+            bottom: 18px;
+        }
+        .ticket-icon {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            border-radius: 50%;
+            padding: 2px 7px;
+            font-size: 1.5rem;
+            color: #007bff;
+            z-index: 3;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+        .ticket-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .status-open {
+            border-left: 5px solid #ff3907;
+            margin-bottom: 10px;
+        }
+        .status-closed {
+            border-left: 5px solid #28a745;
+            margin-bottom: 10px;
+
+        }
+        .status-pending {
+            border-left: 5px solid #17a2b8;
+            margin-bottom: 10px;
+
+        }
+        .customer-profile {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.05);
+        }
+        .customer-main-info {
+            background: #e9e9e9;
+            border-radius: 10px;
+            padding: 18px 10px 10px 10px;
+            margin-bottom: 18px;
+        }
+        .customer-main-info .customer-name {
+            color: #007bff;
+            font-size: 1.7rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .customer-main-info .customer-phones-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 30px;
+        }
+        .customer-main-info .customer-phone1 {
+            min-width: 140px;
+            text-align: right;
+            font-size: 1.1rem;
+        }
+        .customer-main-info .customer-phone2 {
+            min-width: 140px;
+            text-align: left;
+            font-size: 1.1rem;
+        }
+        .customer-main-info .customer-phone1, .customer-main-info .customer-phone2 {
+            color: #333;
+        }
+        .customer-main-info .customer-gov-row {
+            text-align: center;
+            font-size: 1.08rem;
+            color: #444;
+        }
+        /* تصغير حجم الأيقونات في الأزرار */
+        .btn i {
+            margin-left: 6px;
+            margin-right: 2px;
+            font-size: 1.1em;
+            vertical-align: middle;
+        }
+        /* عناوين التذاكر وإضافة تذكرة */
+        .tickets-title {
+            background: #28a745;
+            color: #fff;
+            text-align: center;
+            border-radius: 10px;
+            padding: 10px 0 10px 0;
+            font-size: 1.5rem;
+            margin-bottom: 18px;
+            font-weight: bold;
+        }
+        .add-ticket-title {
+            background: #007bff;
+            color: #fff;
+            text-align: center;
+            border-radius: 10px;
+            padding: 10px 0 10px 0;
+            font-size: 1.3rem;
+            margin-bottom: 18px;
+            font-weight: bold;
+        }
+        /* خانة التاريخ */
+        #ticket-date {
+            max-width: 140px;
+            min-width: 120px;
+            display: inline-block;
+        }
+        /* Toast Styles */
+        .custom-toast {
+            background: #fff;
+            color: #222;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+            padding: 18px 28px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-align: center;
+            border: 2px solid #007bff;
+            min-width: 320px;
+            max-width: 90vw;
+            margin: 0 auto;
+            animation: fadeInToast 0.3s;
+        }
+        .custom-toast.success { border-color: #28a745; }
+        .custom-toast.error { border-color: #dc3545; }
+        .custom-toast.info { border-color: #007bff; }
+        @keyframes fadeInToast {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        /* تنسيق خاص لتذكرة الاستفسار في صفحة العميل */
+        .inquiry-ticket-custom .inquiry-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 7px;
+        }
+        .inquiry-ticket-custom .inquiry-number {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #222;
+            text-align: center;
+        }
+        .inquiry-ticket-custom .inquiry-type {
+            color: #ffc107;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .inquiry-ticket-custom .inquiry-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .inquiry-ticket-custom .inquiry-date {
+            color: #555;
+            font-size: 1rem;
+        }
+        .inquiry-ticket-custom .inquiry-employee {
+            color: #007bff;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .inquiry-ticket-custom .inquiry-subtype {
+            font-size: 1.05rem;
+            color: #070707;
+            margin-bottom: 4px;
+            background-color: #d3d0d0;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            padding: 5px;
+            direction: ltr;
+        }
+        .inquiry-ticket-custom .inquiry-desc {
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 7px 10px;
+            margin-bottom: 7px;
+            font-size: 0.97em;
+            color: #222;
+        }
+        .inquiry-ticket-custom .inquiry-status {
+            display: inline-block;
+            padding: 2px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.05rem;
+            margin-top: 7px;
+        }
+        .inquiry-ticket-custom .status-closed {
+            background: #28a745;
+            color: #fff;
+        }
+        .inquiry-ticket-custom .status-pending {
+            background: #ffc107;
+            color: #222;
+        }
+        .inquiry-ticket-custom .status-open {
+            background: #dc3545;
+            color: #fff;
+        }
+        /* تنسيق خاص لتذكرة الشكوى في صفحة العميل */
+        .complaint-ticket-custom .complaint-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 7px;
+        }
+        .complaint-ticket-custom .complaint-number {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #222;
+            text-align: center;
+        }
+        .complaint-ticket-custom .complaint-type {
+            color: #dc3545;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .complaint-ticket-custom .complaint-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .complaint-ticket-custom .complaint-date {
+            color: #555;
+            font-size: 1rem;
+        }
+        .complaint-ticket-custom .complaint-employee {
+            color: #007bff;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .complaint-ticket-custom .complaint-subtype {
+            font-size: 1.05rem;
+            color: #070707;
+            margin-bottom: 4px;
+            background-color: #d3d0d0;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            padding: 5px;
+            direction: ltr;
+        }
+        .complaint-ticket-custom .complaint-desc {
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 7px 10px;
+            margin-bottom: 7px;
+            font-size: 0.97em;
+            color: #222;
+        }
+        .complaint-ticket-custom .complaint-admin-reply {
+            background: #eef6ff;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            padding: 7px 10px;
+            margin-bottom: 7px;
+            font-size: 0.97em;
+            color: #007bff;
+        }
+        .complaint-ticket-custom .complaint-status {
+            display: inline-block;
+            padding: 2px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.05rem;
+            margin-top: 7px;
+        }
+        .complaint-ticket-custom .status-closed {
+            background: #28a745;
+            color: #fff;
+        }
+        .complaint-ticket-custom .status-pending {
+            background: #ffc107;
+            color: #222;
+        }
+        .complaint-ticket-custom .status-open {
+            background: #dc3545;
+            color: #fff;
+        }
+        /* تنسيق خاص لتذكرة الصيانة في صفحة العميل */
+        .maintenance-ticket-custom .maintenance-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 7px;
+        }
+        .maintenance-ticket-custom .maintenance-number {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #222;
+            text-align: center;
+        }
+        .maintenance-ticket-custom .maintenance-type {
+            color: #007bff;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        .maintenance-ticket-custom .maintenance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+        .maintenance-ticket-custom .maintenance-date {
+            color: #555;
+            font-size: 1rem;
+        }
+        .maintenance-ticket-custom .maintenance-employee {
+            color: #007bff;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+        .maintenance-ticket-custom .maintenance-subtype {
+            font-size: 1.05rem;
+            color: #070707;
+            margin-bottom: 4px;
+            background-color: #d3d0d0;
+            border-radius: 10px;
+            font-weight: 600;
+            text-align: center;
+            padding: 5px;
+            direction: ltr;
+        }
+        .maintenance-ticket-custom .maintenance-desc {
+            background: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 7px 10px;
+            margin-bottom: 7px;
+            font-size: 0.97em;
+            color: #222;
+        }
+        .maintenance-ticket-custom .maintenance-note {
+            background: #eef6ff;
+            border: 1px solid #007bff;
+            border-radius: 5px;
+            padding: 7px 10px;
+            margin-bottom: 7px;
+            font-size: 0.97em;
+            color: #007bff;
+        }
+        .maintenance-ticket-custom .maintenance-status-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 12px;
+            margin-top: 7px;
+        }
+        .maintenance-ticket-custom .maintenance-status {
+            display: inline-block;
+            padding: 2px 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.05rem;
+        }
+        .maintenance-ticket-custom .status-closed {
+            background: #28a745;
+            color: #fff;
+        }
+        .maintenance-ticket-custom .status-pending {
+            background: #ffc107;
+            color: #222;
+        }
+        .maintenance-ticket-custom .status-open {
+            background: #dc3545;
+            color: #fff;
+        }
+        .maintenance-ticket-custom .maintenance-schedule {
+            margin-right: auto;
+            color: #dc3545;
+            font-weight: bold;
+            font-size: 1.05rem;
+        }
+        /* لون الفريم المنقط حسب نوع التذكرة في صفحة العميل */
+        .ticket-card.inquiry-border {
+            border-color: #ffc107 !important;
+        }
+        .ticket-card.complaint-border {
+            border-color: #dc3545 !important;
+        }
+        .ticket-card.maintenance-border {
+            border-color: #007bff !important;
+        }
+        /* تنسيق أخف للخط في صفحة المدير */
+        .admin-ticket-custom * {
+            font-weight: 400 !important;
+        }
+        /* Footer styles */
+        .custom-footer {
+            position: fixed;
+            bottom: 18px;
+            left: 18px;
+            z-index: 999;
+            background: rgba(255,255,255,0.95);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 12px 22px 10px 22px;
+            min-width: 180px;
+            text-align: center;
+        }
+        .custom-footer .footer-title {
+            font-size: 1.08rem;
+            font-weight: 600;
+            color: #111;
+            margin-bottom: 6px;
+        }
+        .custom-footer .footer-icons {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
+        }
+        .custom-footer .footer-icons a {
+            color: #222;
+            font-size: 1.4rem;
+            transition: color 0.2s;
+        }
+        .custom-footer .footer-icons a:hover {
+            color: #007bff;
+        }
+        .custom-footer .footer-icons a.facebook { color: #1877f3; }
+        .custom-footer .footer-icons a.instagram { color: #e4405f; }
+        .custom-footer .footer-icons a.linkedin { color: #0a66c2; }
+        .custom-footer .footer-icons a:hover {
+            filter: brightness(1.2);
+        }
+        /* لون العنوان الرئيسي */
+        .main-blue-title {
+            color: #007bff !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحة تسجيل الدخول -->
+    <div id="login-page" class="login-container">
+        <h2 class="text-center mb-4" > <i class="fas fa-sign-in-alt"></i> Login    </h2>
+        <form id="login-form">
+            <div class="mb-3">
+                <label for="username" class="form-label"  style="margin-right: 280px; font-weight: 600;" >  Username  </label>
+                <input type="text" class="form-control" id="username" style="text-align: left;"  required>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label" style="margin-right: 280px; font-weight: 600;" > Password </label>
+                <input type="password" class="form-control" id="password"  style="text-align: left;" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Submit</button>
+        </form>
+    </div>
+
+    <!-- الصفحة الرئيسية -->
+    <div id="main-page" class="container main-container">
+        <!-- شريط التنقل -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#"> Ahmed Mohamed  </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" id="employee-dashboard-link">Employee Page</a>
+                        </li>
+                        <li class="nav-item" id="admin-link-item" style="display: none;">
+                            <a class="nav-link" href="#" id="admin-dashboard-link">Manger Page </a>
+                        </li>
+                    </ul>
+                    <button class="btn btn-outline-light" id="logout-btn"> Logout </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- لوحة الموظف -->
+        <div id="employee-dashboard" class="form-section active-form">
+            <h3 class="mb-4" style="margin-right: 100px;">Research </h3>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" id="customer-search" class="form-control" style="font-size: 18px;" placeholder="By namber, customer name , ticket number">
+                        <button class="btn btn-primary" id="search-customer-btn" style="margin-right: 20px ; border-radius: 10px;">Search</button>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-success" id="new-customer-btn">New Customer  </button>
+                </div>
+            </div>
+
+            <!-- بروفيل العميل -->
+            <div id="customer-profile" class="customer-profile" style="display: none;">
+                <div class="customer-main-info mb-4">
+                    <div class="customer-name" id="customer-name"></div>
+                    <div class="customer-phones-row">
+                        <div class="customer-phone1" id="customer-phone1"></div>
+                        <div class="customer-phone2" id="customer-phone2"></div>
+                    </div>
+                    <div class="customer-gov-row">
+                        <span id="customer-governorate"></span> - <span id="customer-region"></span>
+                    </div>
+                </div>
+
+                <div class="tickets-title mt-4 mb-3">Tickets</div>
+                <div id="customer-tickets"></div>
+
+                <div class="add-ticket-title mt-4 mb-3">Add New Ticket </div>
+                <form id="new-ticket-form">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="ticket-type" class="form-label">Ticket Type  </label>
+                            <select class="form-select" id="ticket-type" required>
+                                <option value=""> Ticket Type </option>
+                                <option value="inquiry">inquiry</option>
+                                <option value="complaint">complaint</option>
+                                <option value="maintenance">maintenance</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4" id="ticket-subtype-container" style="display: none;">
+                            <label for="ticket-subtype" class="form-label" style=" font-size: 18px;">Type </label>
+                            <select class="form-select" id="ticket-subtype"  style=" font-size: 18px;">
+                                <!-- سيتم ملؤه ديناميكيًا -->
+                            </select>
+                        </div>
+                        <div class="col-md-4" id="maintenance-schedule-container" style="display: none;">
+                            <label for="maintenance-schedule" class="form-label"> Maintenance data </label>
+                            <input type="datetime-local" class="form-control" id="maintenance-schedule">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ticket-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="ticket-description" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="ticket-date" class="form-label">Date</label><br>
+                        <input type="date" class="form-control" id="ticket-date" required readonly>
+                    </div>
+
+                    <input type="hidden" id="employee-name">
+                    <input type="hidden" id="customer-id">
+
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="button" class="btn btn-secondary" id="clear-ticket-form">Clear </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- لوحة المدير ------------------------------------------------------------------------------------------------------------------------------------------------>
+        <div id="admin-dashboard" class="form-section">
+            <div class="d-flex align-items-center mb-4">
+                <h3 class="mb-0 me-3">Admin Dashboard</h3>
+                <button id="toggle-admin-view" class="btn btn-outline-secondary btn-sm" title="Toggle View" style="margin-right: 10px;">
+                    <i class="bi bi-table"></i>
+                </button>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <input type="text" id="admin-search" class="form-control" placeholder="Search by phone, ticket number, or customer name" style="margin-left: 20px;">
+                        <button class="btn btn-primary" id="admin-search-btn"><i class="bi bi-search" style="border-radius: 20%;"></i>Search</button>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="ticket-status-filter">
+                        <option value="all">All Statuses</option>
+                        <option value="open">Open</option>
+                        <option value="closed">Closed</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="ticket-type-filter">
+                        <option value="all">All Types</option>
+                        <option value="inquiry">Inquiry</option>
+                        <option value="complaint">Complaint</option>
+                        <option value="maintenance">Maintenance</option>
+                    </select>
+                </div>
+            </div>
+            <!-- بحث بالتاريخ واستخراج ملف -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <input type="date" class="form-control" id="admin-date-filter">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-secondary w-100" id="admin-date-search-btn"><i class="bi bi-calendar-event"></i>Search Date</button>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-success w-100" id="export-excel-btn"><i class="bi bi-file-earmark-excel"></i>Export File</button>
+                </div>
+                <!-- بحث موعد الصيانة -->
+                <div class="col-md-4 mt-2 mt-md-0">
+                    <div class="input-group">
+                        <input type="date" class="form-control border-primary" id="maintenance-date-filter" style="border-width:2px; margin-left: 5px;">
+                        <button class="btn btn-primary" id="maintenance-date-search-btn" style="min-width:120px; border-radius: 10%;"><i class="bi bi-tools"></i>Search Maintenance Date</button>
+                    </div>
+                </div>
+            </div>
+            <div id="admin-tickets-list" class="row"></div>
+        </div>
+
+        <!-- نموذج عميل جديد -->
+        <div id="new-customer-form" class="form-section">
+            <h3 class="mb-4" style="text-align: center; color: #007bff;">New Acount</h3>
+            <form id="customer-form">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="new-customer-name" class="form-label" style="font-size: 18px; color: #17a2b8;">Customer Name </label>
+                        <input type="text" class="form-control" id="new-customer-name" required style="font-size: 20px;">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="new-customer-phone" class="form-label" style="font-size: 18px; color: #17a2b8;">Phone Number  </label>
+                        <input type="text" class="form-control" id="new-customer-phone" required style="font-size: 20px;" >
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="new-customer-phone2" class="form-label" style="font-size: 18px; color: #17a2b8;">  Phone Number  (Optinal)</label>
+                        <input type="text" class="form-control" id="new-customer-phone2" style="font-size: 20px;">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="new-customer-governorate" class="form-label" style="font-size: 18px; color: #17a2b8;" > Governorate</label>
+                        <select class="form-select" id="new-customer-governorate" required style="font-size: 20px;" >
+                            <option value="">Choose The Governorate </option>
+                            <!-- سيتم ملؤه ديناميكيًا -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="new-customer-region" class="form-label" style="font-size: 18px; color: #17a2b8;">Area and Address</label>
+                        <input type="text" class="form-control" id="new-customer-region" disabled required style="font-size: 20px;" >
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="font-size: 20px;" >Save</button>
+                <button type="button" class="btn btn-secondary" id="cancel-new-customer" style="font-size: 20px;" >Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999; min-width: 300px; display: none;"></div>
+    <!-- Custom Confirm Modal -->
+    <div id="custom-confirm-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:10000;">
+        <div class="custom-toast info" style="min-width:320px; max-width:90vw;">
+            <div id="custom-confirm-message">?Are you sure you want to delete this ticket</div>
+            <div class="mt-3 d-flex justify-content-center gap-3">
+                <button id="custom-confirm-yes" class="btn btn-danger btn-sm">Yes</button>
+                <button id="custom-confirm-cancel" class="btn btn-secondary btn-sm">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+    <script>
+    //    users
+        const users = [
+            { username: 'admin', password: '0000', role: 'admin', name: ' Manger' },
+            { username: 'Ahmed', password: '1111', role: 'employee', name: 'Ahmed Mohamed' },
+            { username: 'Adam', password: '2222', role: 'employee', name: 'Adam Ali' },
+        ];
+
+        const governorates = {
+            'القاهرة': ['المعادي', 'المقطم', 'مدينة نصر', 'الزمالك', 'الدقي'],
+            'الجيزة': ['الدقي', 'المهندسين', 'الهرم', 'فيصل', 'العجوزة'],
+            'الإسكندرية': ['سيدي جابر', 'المنتزه', 'العصافرة', 'السيوف', 'المعمورة']
+        };
+
+        const ticketSubtypes = {
+            inquiry: ['استفسار عن 1', 'استفسار عن 2', 'استفسار عن 3'],
+            complaint: ['شكوى عن 1', 'شكوى عن 2', 'شكوى عن 3'],
+            maintenance: ['صيانة 1', 'صيانة 2', 'صيانة 3']
+        };
+
+        let customers = [];
+        let tickets = [];
+        let currentUser = null;
+        let currentCustomer = null;
+
+        // متغير لتخزين التذاكر المعروضة حاليًا
+        let currentlyDisplayedTickets = [];
+
+        // متغير لتخزين نتائج بحث موعد الصيانة
+        let maintenanceDateTickets = [];
+
+        // DOM Elements
+        const loginPage = document.getElementById('login-page');
+        const mainPage = document.getElementById('main-page');
+        const loginForm = document.getElementById('login-form');
+        const logoutBtn = document.getElementById('logout-btn');
+        const employeeDashboard = document.getElementById('employee-dashboard');
+        const adminDashboard = document.getElementById('admin-dashboard');
+        const adminLinkItem = document.getElementById('admin-link-item');
+        const employeeDashboardLink = document.getElementById('employee-dashboard-link');
+        const adminDashboardLink = document.getElementById('admin-dashboard-link');
+        const customerSearch = document.getElementById('customer-search');
+        const searchCustomerBtn = document.getElementById('search-customer-btn');
+        const newCustomerBtn = document.getElementById('new-customer-btn');
+        const customerProfile = document.getElementById('customer-profile');
+        const newTicketForm = document.getElementById('new-ticket-form');
+        const clearTicketFormBtn = document.getElementById('clear-ticket-form');
+        const ticketType = document.getElementById('ticket-type');
+        const ticketSubtypeContainer = document.getElementById('ticket-subtype-container');
+        const ticketSubtype = document.getElementById('ticket-subtype');
+        const maintenanceScheduleContainer = document.getElementById('maintenance-schedule-container');
+        const newCustomerForm = document.getElementById('new-customer-form');
+        const customerForm = document.getElementById('customer-form');
+        const cancelNewCustomerBtn = document.getElementById('cancel-new-customer');
+        const adminSearch = document.getElementById('admin-search');
+        const adminSearchBtn = document.getElementById('admin-search-btn');
+        const adminTicketsList = document.getElementById('admin-tickets-list');
+        const ticketStatusFilter = document.getElementById('ticket-status-filter');
+        const ticketTypeFilter = document.getElementById('ticket-type-filter');
+        const adminDateFilter = document.getElementById('admin-date-filter');
+        const adminDateSearchBtn = document.getElementById('admin-date-search-btn');
+        const exportExcelBtn = document.getElementById('export-excel-btn');
+        const maintenanceDateFilter = document.getElementById('maintenance-date-filter');
+        const maintenanceDateSearchBtn = document.getElementById('maintenance-date-search-btn');
+        const toggleAdminViewBtn = document.getElementById('toggle-admin-view');
+
+        let adminTicketsViewMode = 'card'; // 'card' or 'table'
+
+        // أحداث الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            // تعبئة محافظات في نموذج العميل الجديد
+            const governorateSelect = document.getElementById('new-customer-governorate');
+            for (const gov in governorates) {
+                const option = document.createElement('option');
+                option.value = gov;
+                option.textContent = gov;
+                governorateSelect.appendChild(option);
+            }
+
+            // إضافة بيانات وهمية للاختبار
+            addSampleData();
+        });
+
+        // تسجيل الدخول
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const user = users.find(u => u.username === username && u.password === password);
+            
+            if (user) {
+                currentUser = user;
+                loginPage.style.display = 'none';
+                mainPage.style.display = 'block';
+                
+                // إخفاء التذييل بعد تسجيل الدخول
+                document.getElementById('login-footer').style.display = 'none';
+                
+                // تعبئة اسم الموظف في النموذج
+                document.getElementById('employee-name').value = user.name;
+                
+                // إظهار أو إخفاء رابط المدير
+                if (user.role === 'admin') {
+                    adminLinkItem.style.display = 'block';
+                    showAdminDashboard();
+                } else {
+                    adminLinkItem.style.display = 'none';
+                    showEmployeeDashboard();
+                }
+                
+                showToast(` ! Welcome ${user.name}`, 'success');
+            } else {
+                showToast('! User name and password are incorrect', 'error');
+            }
+        });
+
+        // تسجيل الخروج
+        logoutBtn.addEventListener('click', function() {
+            currentUser = null;
+            mainPage.style.display = 'none';
+            loginPage.style.display = 'block';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            hideCustomerProfile();
+            
+            // إظهار التذييل عند تسجيل الخروج
+            document.getElementById('login-footer').style.display = 'block';
+        });
+
+        // التنقل بين لوحات الموظف والمدير
+        employeeDashboardLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            showEmployeeDashboard();
+        });
+
+        adminDashboardLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            showAdminDashboard();
+        });
+
+        function showEmployeeDashboard() {
+            employeeDashboard.classList.add('active-form');
+            adminDashboard.classList.remove('active-form');
+            newCustomerForm.classList.remove('active-form');
+            hideCustomerProfile();
+        }
+
+        function showAdminDashboard() {
+            employeeDashboard.classList.remove('active-form');
+            adminDashboard.classList.add('active-form');
+            newCustomerForm.classList.remove('active-form');
+            hideCustomerProfile();
+            loadAdminTickets();
+        }
+
+        // البحث عن عميل
+        searchCustomerBtn.addEventListener('click', function() {
+            const searchValue = customerSearch.value.trim();
+            if (!searchValue) {
+                showToast('Please enter phone number, customer name, or ticket number to search', 'error');
+                return;
+            }
+            let customer = null;
+            // إذا كان البحث رقم
+            if (!isNaN(searchValue)) {
+                // ابحث برقم الهاتف أو رقم التذكرة
+                customer = customers.find(c => c.phone === searchValue || c.phone2 === searchValue);
+                if (!customer) {
+                    // ابحث برقم التذكرة
+                    const ticket = tickets.find(t => t.id === searchValue);
+                    if (ticket) {
+                        customer = customers.find(c => c.id === ticket.customerId);
+                    }
+                }
+            } else {
+                // ابحث بالاسم
+                customer = customers.find(c => c.name.includes(searchValue));
+            }
+            if (customer) {
+                showCustomerProfile(customer);
+            } else {
+                // Toast مع زر إنشاء عميل جديد
+                const toastContainer = document.getElementById('toast-container');
+                toastContainer.innerHTML = `<div class='custom-toast info'>No Account <br><button id='create-new-customer-btn' class='btn btn-sm btn-primary mt-2'>Create a new account </button></div>`;
+                toastContainer.style.display = 'block';
+                document.getElementById('create-new-customer-btn').onclick = function() {
+                    showNewCustomerForm(searchValue);
+                    toastContainer.style.display = 'none';
+                };
+                setTimeout(() => {
+                    if (toastContainer.style.display === 'block') {
+                        toastContainer.style.display = 'none';
+                        toastContainer.innerHTML = '';
+                }
+                }, 6000);
+            }
+        });
+
+        // عرض بروفيل العميل
+        function showCustomerProfile(customer) {
+            currentCustomer = customer;
+            
+            document.getElementById('customer-name').textContent = customer.name;
+            document.getElementById('customer-phone1').textContent = customer.phone ? '  Phone Number: ' + customer.phone : '';
+            document.getElementById('customer-phone2').textContent = customer.phone2 ? '  Phone Number  (Optinal) : ' + customer.phone2 : '';
+            document.getElementById('customer-governorate').textContent = customer.governorate;
+            document.getElementById('customer-region').textContent = customer.region;
+            document.getElementById('customer-id').value = customer.id;
+            
+            // عرض تذاكر العميل
+            let customerTickets = tickets.filter(t => t.customerId === customer.id);
+            // ترتيب التذاكر من الأحدث إلى الأقدم
+            customerTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            const ticketsContainer = document.getElementById('customer-tickets');
+            ticketsContainer.innerHTML = '';
+            
+            if (customerTickets.length === 0) {
+                ticketsContainer.innerHTML = '<p>No Tickets</p>';
+            } else {
+                customerTickets.forEach(ticket => {
+                    const ticketCard = createTicketCard(ticket, false);
+                    ticketsContainer.appendChild(ticketCard);
+                });
+            }
+            
+            customerProfile.style.display = 'block';
+            setTodayForTicketDate();
+        }
+
+        function hideCustomerProfile() {
+            customerProfile.style.display = 'none';
+            currentCustomer = null;
+            customerSearch.value = '';
+        }
+
+        // إنشاء بطاقة تذكرة
+        function createTicketCard(ticket, isAdmin = false) {
+            const card = document.createElement('div');
+            card.className = `card ticket-card status-${ticket.status}`;
+            // أيقونة تذكرة أعلى البطاقة
+            const icon = document.createElement('span');
+            icon.className = 'ticket-icon';
+            icon.innerHTML = '<i class="bi bi-ticket-perforated"></i>';
+            card.appendChild(icon);
+            const cardBody = document.createElement('div');
+            cardBody.className = 'card-body';
+
+            // --- نسخ تنسيق العميل للمدير مع كلاس admin-ticket-custom ---
+            if ((isAdmin && ticket.type === 'inquiry') || (!isAdmin && ticket.type === 'inquiry')) {
+                card.classList.add('inquiry-ticket-custom', 'inquiry-border');
+                if (isAdmin) card.classList.add('admin-ticket-custom');
+                const header = document.createElement('div');
+                header.className = 'inquiry-header';
+                const number = document.createElement('div');
+                number.className = 'inquiry-number';
+                number.textContent = `Ticket #${ticket.id}`;
+                const typeLabel = document.createElement('div');
+                typeLabel.className = 'inquiry-type';
+                typeLabel.textContent = 'inquiry';
+                header.appendChild(number);
+                header.appendChild(typeLabel);
+                cardBody.appendChild(header);
+                const row = document.createElement('div');
+                row.className = 'inquiry-row';
+                const date = document.createElement('div');
+                date.className = 'inquiry-date';
+                date.textContent = `On the Date: ${ticket.date}`;
+                const employee = document.createElement('div');
+                employee.className = 'inquiry-employee';
+                employee.textContent = `Employee: ${ticket.employee}`;
+                row.appendChild(date);
+                row.appendChild(employee);
+                cardBody.appendChild(row);
+                const subtype = document.createElement('div');
+                subtype.className = 'inquiry-subtype';
+                subtype.textContent = `Type: ${ticket.subtype}`;
+                cardBody.appendChild(subtype);
+                const desc = document.createElement('div');
+                desc.className = 'inquiry-desc';
+                desc.textContent = ticket.description;
+                cardBody.appendChild(desc);
+                let statusText = '';
+                if (ticket.status === 'open') statusText = 'open';
+                else if (ticket.status === 'closed') statusText = 'closed';
+                else if (ticket.status === 'pending') statusText = 'pending ';
+                const status = document.createElement('span');
+                status.className = 'inquiry-status status-' + ticket.status;
+                status.textContent = statusText;
+                cardBody.appendChild(status);
+            } else if ((isAdmin && ticket.type === 'complaint') || (!isAdmin && ticket.type === 'complaint')) {
+                card.classList.add('complaint-ticket-custom', 'complaint-border');
+                if (isAdmin) card.classList.add('admin-ticket-custom');
+                const header = document.createElement('div');
+                header.className = 'complaint-header';
+                const number = document.createElement('div');
+                number.className = 'complaint-number';
+                number.textContent = `Ticket #${ticket.id}`;
+                const typeLabel = document.createElement('div');
+                typeLabel.className = 'complaint-type';
+                typeLabel.textContent = 'complaint';
+                header.appendChild(number);
+                header.appendChild(typeLabel);
+                cardBody.appendChild(header);
+                const row = document.createElement('div');
+                row.className = 'complaint-row';
+                const date = document.createElement('div');
+                date.className = 'complaint-date';
+                date.textContent = `On the Date: ${ticket.date}`;
+                const employee = document.createElement('div');
+                employee.className = 'complaint-employee';
+                employee.textContent = `Employee: ${ticket.employee}`;
+                row.appendChild(date);
+                row.appendChild(employee);
+                cardBody.appendChild(row);
+                const subtype = document.createElement('div');
+                subtype.className = 'complaint-subtype';
+                subtype.textContent = `Type: ${ticket.subtype}`;
+                cardBody.appendChild(subtype);
+                const desc = document.createElement('div');
+                desc.className = 'complaint-desc';
+                desc.textContent = ticket.description;
+                cardBody.appendChild(desc);
+                if (ticket.adminReply) {
+                    const reply = document.createElement('div');
+                    reply.className = 'complaint-admin-reply';
+                    reply.textContent = `Reply : ${ticket.adminReply}`;
+                    cardBody.appendChild(reply);
+                }
+                let statusText = '';
+                if (ticket.status === 'open') statusText = 'open';
+                else if (ticket.status === 'closed') statusText = 'closed';
+                else if (ticket.status === 'pending') statusText = 'pending ';
+                const status = document.createElement('span');
+                status.className = 'complaint-status status-' + ticket.status;
+                status.textContent = statusText;
+                cardBody.appendChild(status);
+            } else if ((isAdmin && ticket.type === 'maintenance') || (!isAdmin && ticket.type === 'maintenance')) {
+                card.classList.add('maintenance-ticket-custom', 'maintenance-border');
+                if (isAdmin) card.classList.add('admin-ticket-custom');
+                const header = document.createElement('div');
+                header.className = 'maintenance-header';
+                const number = document.createElement('div');
+                number.className = 'maintenance-number';
+                number.textContent = `Ticket #${ticket.id}`;
+                const typeLabel = document.createElement('div');
+                typeLabel.className = 'maintenance-type';
+                typeLabel.textContent = 'Maintenance';
+                header.appendChild(number);
+                header.appendChild(typeLabel);
+                cardBody.appendChild(header);
+                const row = document.createElement('div');
+                row.className = 'maintenance-row';
+                const date = document.createElement('div');
+                date.className = 'maintenance-date';
+                date.textContent = `On the: ${ticket.date}`;
+                const employee = document.createElement('div');
+                employee.className = 'maintenance-employee';
+                employee.textContent = `Employee: ${ticket.employee}`;
+                row.appendChild(date);
+                row.appendChild(employee);
+                cardBody.appendChild(row);
+                const subtype = document.createElement('div');
+                subtype.className = 'maintenance-subtype';
+                subtype.textContent = `Type: ${ticket.subtype}`;
+                cardBody.appendChild(subtype);
+                const desc = document.createElement('div');
+                desc.className = 'maintenance-desc';
+                desc.textContent = ticket.description;
+                cardBody.appendChild(desc);
+                if (ticket.note) {
+                    const note = document.createElement('div');
+                    note.className = 'maintenance-note';
+                    note.textContent = `ملحوظة: ${ticket.note}`;
+                    cardBody.appendChild(note);
+                }
+                const statusRow = document.createElement('div');
+                statusRow.className = 'maintenance-status-row';
+                let statusText = '';
+                if (ticket.status === 'open') statusText = 'open';
+                else if (ticket.status === 'closed') statusText = 'closed';
+                else if (ticket.status === 'pending') statusText = 'pending ';
+                const status = document.createElement('span');
+                status.className = 'maintenance-status status-' + ticket.status;
+                status.textContent = statusText;
+                statusRow.appendChild(status);
+                if (ticket.schedule) {
+                    const schedule = new Date(ticket.schedule);
+                    let hours = schedule.getHours();
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    const minutes = schedule.getMinutes().toString().padStart(2, '0');
+                    const scheduleDiv = document.createElement('span');
+                    scheduleDiv.className = 'maintenance-schedule';
+                    scheduleDiv.textContent = `Maintenance Date : ${schedule.toLocaleDateString()} ${hours}:${minutes} ${ampm}`;
+                    statusRow.appendChild(scheduleDiv);
+                }
+                cardBody.appendChild(statusRow);
+            } else {
+                // ... الكود الأصلي كما هو لباقي الأنواع أو في صفحة المدير
+                const title = document.createElement('h5');
+                title.className = 'card-title';
+                let typeText = '';
+                if (ticket.type === 'inquiry') typeText = 'inquiry';
+                else if (ticket.type === 'complaint') typeText = 'complaint';
+                else if (ticket.type === 'maintenance') typeText = 'maintenance';
+                title.textContent = `Ticket #${ticket.id} - ${typeText}`;
+                const subtitle = document.createElement('h6');
+                subtitle.className = 'card-subtitle mb-2 text-muted';
+                subtitle.textContent = `On the Date: ${ticket.date}`;
+                const type = document.createElement('p');
+                type.className = 'card-text';
+                type.textContent = `Type: ${ticket.subtype}`;
+                const desc = document.createElement('div');
+                desc.className = 'card-text';
+                desc.innerHTML = `<div style=\"border:1px solid #ccc; border-radius:5px; background:#f9f9f9; padding:7px 10px; margin-bottom:7px; font-size:0.97em;\">${ticket.description}</div>`;
+                const employee = document.createElement('p');
+                employee.className = 'card-text';
+                employee.textContent = `Employee: ${ticket.employee}`;
+                const status = document.createElement('p');
+                status.className = 'card-text';
+                let statusText = '';
+                if (ticket.status === 'open') statusText = 'open';
+                else if (ticket.status === 'closed') statusText = 'closed';
+                else if (ticket.status === 'pending') statusText = 'pending ';
+                status.textContent = `Status: ${statusText}`;
+                cardBody.appendChild(title);
+                cardBody.appendChild(subtitle);
+                cardBody.appendChild(type);
+                cardBody.appendChild(desc);
+                cardBody.appendChild(employee);
+                cardBody.appendChild(status);
+            }
+
+            // أدوات الإدارة (تغيير الحالة، الرد، الملحوظة) تضاف فقط في صفحة المدير بعد الكارد الأساسي
+            if (isAdmin && currentUser.role === 'admin') {
+                // تغيير الحالة
+                const statusSelect = document.createElement('select');
+                statusSelect.className = 'form-select mb-3';
+                const options = [
+                    { value: 'open', text: 'open' },
+                    { value: 'closed', text: 'closed' },
+                    { value: 'pending', text: 'pending' }
+                ];
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt.value;
+                    option.textContent = opt.text;
+                    option.selected = ticket.status === opt.value;
+                    statusSelect.appendChild(option);
+                });
+                statusSelect.addEventListener('change', function() {
+                    updateTicketStatus(ticket.id, this.value);
+                });
+                cardBody.appendChild(statusSelect);
+                // رد المدير للشكوى
+                if (ticket.type === 'complaint' && ticket.status !== 'closed') {
+                    const replyDiv = document.createElement('div');
+                    replyDiv.className = 'mb-3';
+                    const replyLabel = document.createElement('label');
+                    replyLabel.className = 'form-label';
+                    replyLabel.textContent = 'Reply ';
+                    const replyTextarea = document.createElement('textarea');
+                    replyTextarea.className = 'form-control';
+                    replyTextarea.rows = 2;
+                    replyTextarea.placeholder = '...Reply ';
+                    replyTextarea.value = ticket.adminReply || '';
+                    const replyButton = document.createElement('button');
+                    replyButton.className = 'btn btn-sm btn-primary mt-2';
+                    replyButton.textContent = ' Save Reply';
+                    replyButton.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        updateAdminReply(ticket.id, replyTextarea.value);
+                    });
+                    replyDiv.appendChild(replyLabel);
+                    replyDiv.appendChild(replyTextarea);
+                    replyDiv.appendChild(replyButton);
+                    cardBody.appendChild(replyDiv);
+                }
+                // ملحوظة الصيانة
+                if (ticket.type === 'maintenance') {
+                    const noteDiv = document.createElement('div');
+                    noteDiv.className = 'mb-3';
+                    const noteLabel = document.createElement('label');
+                    noteLabel.className = 'form-label';
+                    noteLabel.textContent = 'Note';
+                    const noteTextarea = document.createElement('textarea');
+                    noteTextarea.className = 'form-control';
+                    noteTextarea.rows = 2;
+                    noteTextarea.placeholder = ' ...Enter the Note  ';
+                    noteTextarea.value = ticket.note || '';
+                    const noteButton = document.createElement('button');
+                    noteButton.className = 'btn btn-sm btn-primary mt-2';
+                    noteButton.textContent = ' Save Note';
+                    noteButton.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        updateMaintenanceNote(ticket.id, noteTextarea.value);
+                    });
+                    noteDiv.appendChild(noteLabel);
+                    noteDiv.appendChild(noteTextarea);
+                    noteDiv.appendChild(noteButton);
+                    cardBody.appendChild(noteDiv);
+                }
+            }
+
+            // إضافة بيانات العميل في صفحة المدير فقط (مباشرة بعد رقم التذكرة)
+            if (isAdmin) {
+                const customer = customers.find(c => c.id === ticket.customerId);
+                if (customer) {
+                    const customerInfo = document.createElement('div');
+                    customerInfo.className = 'admin-ticket-customer-info mb-2';
+                    customerInfo.innerHTML = `
+                        <div style="text-align:center; font-weight:bold; color:#007bff; font-size:1.2rem;">${customer.name}</div>
+                        <div style="display:flex; justify-content:center; align-items:center; gap:18px; margin:6px 0 2px 0;">
+                            <span style="color:#28a745; font-weight:500;">${customer.phone ? customer.phone : ''}</span>
+                            ${customer.phone2 ? `<span style=\"color:#28a745; font-weight:500;\">${customer.phone2}</span>` : ''}
+                        </div>
+                        <div style="text-align:center; color:#222; font-size:1.05rem;">
+                            <div>${customer.governorate}</div>
+                            <div>${customer.region}</div>
+                        </div>
+                    `;
+                    cardBody.appendChild(customerInfo);
+                }
+            }
+
+            card.appendChild(cardBody);
+            // عند النقر على التذكرة في لوحة المدير، عرض بروفيل العميل
+            if (isAdmin) {
+                card.addEventListener('click', function() {
+                    const customer = customers.find(c => c.id === ticket.customerId);
+                    if (customer) {
+                        showCustomerProfile(customer);
+                    }
+                });
+                // زر حذف التذكرة (يظهر فقط في صفحة المدير)
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-link p-0 ms-2';
+                deleteBtn.title = 'Delete Ticket';
+                deleteBtn.innerHTML = '<i class="fas fa-trash-alt text-danger" style="font-size:1.3rem;"></i>';
+                deleteBtn.style.float = 'left';
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    showCustomConfirm('?Are you sure you want to delete this ticket', function(confirmed) {
+                        if (confirmed) {
+                            deleteTicket(ticket.id);
+                        }
+                    });
+                });
+                cardBody.appendChild(deleteBtn);
+            }
+            return card;
+        }
+
+        // نافذة تأكيد مخصصة
+        function showCustomConfirm(message, callback) {
+            const modal = document.getElementById('custom-confirm-modal');
+            const msgDiv = document.getElementById('custom-confirm-message');
+            const yesBtn = document.getElementById('custom-confirm-yes');
+            const cancelBtn = document.getElementById('custom-confirm-cancel');
+            msgDiv.textContent = message;
+            modal.style.display = 'block';
+            function cleanup() {
+                modal.style.display = 'none';
+                yesBtn.removeEventListener('click', onYes);
+                cancelBtn.removeEventListener('click', onCancel);
+            }
+            function onYes(e) {
+                e.preventDefault();
+                cleanup();
+                callback(true);
+            }
+            function onCancel(e) {
+                e.preventDefault();
+                cleanup();
+                callback(false);
+            }
+            yesBtn.addEventListener('click', onYes);
+            cancelBtn.addEventListener('click', onCancel);
+        }
+
+        // تغيير نوع التذكرة
+        ticketType.addEventListener('change', function() {
+            const type = this.value;
+            
+            ticketSubtypeContainer.style.display = type ? 'block' : 'none';
+            maintenanceScheduleContainer.style.display = type === 'maintenance' ? 'block' : 'none';
+            
+            if (type) {
+                // تعبئة الأنواع الفرعية
+                ticketSubtype.innerHTML = '';
+                ticketSubtypes[type].forEach(subtype => {
+                    const option = document.createElement('option');
+                    option.value = subtype;
+                    option.textContent = subtype;
+                    ticketSubtype.appendChild(option);
+                });
+            }
+        });
+
+        // إضافة تذكرة جديدة
+        newTicketForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!currentCustomer) {
+                alert('الرجاء تحديد عميل أولاً');
+                return;
+            }
+            
+            const type = ticketType.value;
+            const subtype = ticketSubtype.value;
+            const description = document.getElementById('ticket-description').value;
+            const date = document.getElementById('ticket-date').value;
+            const employee = document.getElementById('employee-name').value;
+            const customerId = document.getElementById('customer-id').value;
+            
+            if (!type || !subtype || !description || !date) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            const newTicket = {
+                id: getNextTicketId(),
+                type,
+                subtype,
+                description,
+                date,
+                employee,
+                customerId,
+                phone2: currentCustomer && currentCustomer.phone2 ? currentCustomer.phone2 : '',
+                status: type === 'inquiry' ? 'closed' : 'open',
+                createdAt: new Date().toISOString()
+            };
+            
+            if (type === 'maintenance') {
+                const schedule = document.getElementById('maintenance-schedule').value;
+                if (!schedule) {
+                    alert('   Enter the maintenace date first');
+                    return;
+                }
+                newTicket.schedule = schedule;
+            }
+            
+            tickets.push(newTicket);
+            showToast('Ticket saved successfully', 'success');
+            clearTicketForm();
+            
+            // تحديث عرض التذاكر
+            if (currentCustomer) {
+                showCustomerProfile(currentCustomer);
+            }
+        });
+
+        // تفريغ نموذج التذكرة
+        clearTicketFormBtn.addEventListener('click', clearTicketForm);
+
+        function clearTicketForm() {
+            ticketType.value = '';
+            ticketSubtype.value = '';
+            document.getElementById('ticket-description').value = '';
+            document.getElementById('ticket-date').value = '';
+            document.getElementById('maintenance-schedule').value = '';
+            ticketSubtypeContainer.style.display = 'none';
+            maintenanceScheduleContainer.style.display = 'none';
+        }
+
+        // عرض نموذج عميل جديد
+        newCustomerBtn.addEventListener('click', function() {
+            showNewCustomerForm();
+        });
+
+        function showNewCustomerForm(phone = '') {
+            employeeDashboard.classList.remove('active-form');
+            adminDashboard.classList.remove('active-form');
+            newCustomerForm.classList.add('active-form');
+            hideCustomerProfile();
+            
+            document.getElementById('new-customer-name').value = '';
+            document.getElementById('new-customer-phone').value = phone;
+            document.getElementById('new-customer-phone2').value = '';
+            document.getElementById('new-customer-governorate').value = '';
+            document.getElementById('new-customer-region').value = '';
+            document.getElementById('new-customer-region').disabled = true;
+        }
+
+        // تغيير المحافظة
+        document.getElementById('new-customer-governorate').addEventListener('change', function() {
+            const gov = this.value;
+            const regionInput = document.getElementById('new-customer-region');
+            regionInput.value = '';
+            regionInput.disabled = !gov;
+        });
+
+        // حفظ عميل جديد
+        customerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('new-customer-name').value;
+            const phone = document.getElementById('new-customer-phone').value;
+            const phone2 = document.getElementById('new-customer-phone2').value;
+            const governorate = document.getElementById('new-customer-governorate').value;
+            const region = document.getElementById('new-customer-region').value;
+            
+            if (!name || !phone || !governorate || !region) {
+                alert('الرجاء ملء جميع الحقول المطلوبة');
+                return;
+            }
+            
+            // التحقق من عدم وجود عميل بنفس رقم الهاتف
+            const existingCustomer = customers.find(c => c.phone === phone || (phone2 && c.phone2 === phone2));
+            if (existingCustomer) {
+                showToast('يوجد بالفعل عميل بهذا الرقم!', 'error');
+                return;
+            }
+            
+            const newCustomer = {
+                id: generateId(),
+                name,
+                phone,
+                phone2,
+                governorate,
+                region
+            };
+            
+            customers.push(newCustomer);
+            showToast('Customer saved successfully', 'success');
+            
+            // تفعيل لوحة الموظف ثم عرض بروفايل العميل الجديد
+            showEmployeeDashboard();
+            showCustomerProfile(newCustomer);
+        });
+
+        // إلغاء إنشاء عميل جديد
+        cancelNewCustomerBtn.addEventListener('click', function() {
+            showEmployeeDashboard();
+        });
+
+        // لوحة المدير - تحميل التذاكر
+        function loadAdminTickets() {
+            const searchValue = adminSearch.value.trim();
+            const statusFilter = ticketStatusFilter.value;
+            const typeFilter = ticketTypeFilter.value;
+            let filteredTickets = [...tickets];
+            // بحث متقدم
+            if (searchValue) {
+                filteredTickets = filteredTickets.filter(t => {
+                    // ابحث برقم التذكرة
+                    if (t.id === searchValue) return true;
+                    // ابحث باسم العميل أو رقم الهاتف
+                    const customer = customers.find(c => c.id === t.customerId);
+                    if (customer) {
+                        if (customer.name.includes(searchValue)) return true;
+                        if (customer.phone === searchValue || customer.phone2 === searchValue) return true;
+                    }
+                    return false;
+                });
+            }
+            if (statusFilter !== 'all') {
+                filteredTickets = filteredTickets.filter(t => t.status === statusFilter);
+            }
+            if (typeFilter !== 'all') {
+                filteredTickets = filteredTickets.filter(t => t.type === typeFilter);
+            }
+            // ترتيب التذاكر من الأحدث إلى الأقدم
+            filteredTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            adminTicketsList.innerHTML = '';
+            if (filteredTickets.length === 0) {
+                adminTicketsList.innerHTML = '<p>No Tickets to export</p>';
+            } else {
+                filteredTickets.forEach(ticket => {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-6';
+                    const ticketCard = createTicketCard(ticket, true);
+                    col.appendChild(ticketCard);
+                    adminTicketsList.appendChild(col);
+                });
+            }
+        }
+
+        // البحث في لوحة المدير
+        adminSearchBtn.addEventListener('click', function() {
+            loadAdminTickets();
+        });
+
+        // تصفية التذاكر في لوحة المدير
+        ticketStatusFilter.addEventListener('change', loadAdminTickets);
+        ticketTypeFilter.addEventListener('change', loadAdminTickets);
+
+        // تحديث حالة التذكرة
+        function updateTicketStatus(ticketId, newStatus) {
+            const ticketIndex = tickets.findIndex(t => t.id === ticketId);
+            
+            if (ticketIndex !== -1) {
+                tickets[ticketIndex].status = newStatus;
+                showToast('Ticket status updated', 'success');
+                loadAdminTickets();
+                
+                // إذا كان العميل معروضًا، قم بتحديث عرض التذاكر
+                if (currentCustomer) {
+                    showCustomerProfile(currentCustomer);
+                }
+            }
+        }
+
+        // تحديث رد المدير على الشكوى
+        function updateAdminReply(ticketId, reply) {
+            const ticketIndex = tickets.findIndex(t => t.id === ticketId);
+            
+            if (ticketIndex !== -1) {
+                tickets[ticketIndex].adminReply = reply;
+                showToast(' reply saved', 'success');
+                loadAdminTickets();
+                
+                // إذا كان العميل معروضًا، قم بتحديث عرض التذاكر
+                if (currentCustomer) {
+                    showCustomerProfile(currentCustomer);
+                }
+            }
+        }
+
+        // أضف دالة تحديث الملحوظة بعد دالة updateAdminReply مباشرة
+        function updateMaintenanceNote(ticketId, note) {
+            const ticketIndex = tickets.findIndex(t => t.id === ticketId);
+            if (ticketIndex !== -1) {
+                tickets[ticketIndex].note = note;
+                showToast('Note saved', 'success');
+                loadAdminTickets();
+                if (currentCustomer) {
+                    showCustomerProfile(currentCustomer);
+                }
+            }
+        }
+
+        // وظائف مساعدة
+        function generateId() {
+            return Math.floor(Math.random() * 1000000).toString();
+        }
+
+        function addSampleData() {
+            // عملاء وهميين
+            customers = [
+                
+            ];
+            
+            // حذف التذاكر الوهمية
+            tickets = [];
+        }
+
+        // عند عرض بروفايل العميل أو فتح نموذج التذكرة الجديدة، يتم تعيين تاريخ اليوم تلقائيًا
+        function setTodayForTicketDate() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('ticket-date').value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        // منطق توليد رقم التذكرة يبدأ من 1000 ويزيد واحد مع كل تذكرة جديدة
+        function getNextTicketId() {
+            if (tickets.length === 0) return '1000';
+            const maxId = Math.max(...tickets.map(t => parseInt(t.id, 10)));
+            return (maxId + 1).toString();
+        }
+
+        // عند البحث بالتاريخ أو أي بحث آخر، احفظ النتائج في currentlyDisplayedTickets
+        adminDateSearchBtn.addEventListener('click', function() {
+            const date = adminDateFilter.value;
+            if (!date) {
+                showToast('Please select a date first', 'error');
+                return;
+            }
+            currentlyDisplayedTickets = tickets.filter(t => t.date === date);
+            loadAdminTickets(currentlyDisplayedTickets);
+        });
+
+        // عند البحث بالنص أو الفلاتر الأخرى، احفظ النتائج أيضًا
+        adminSearchBtn.addEventListener('click', function() {
+            // استخدم نفس منطق loadAdminTickets
+            const searchValue = adminSearch.value.trim();
+            const statusFilter = ticketStatusFilter.value;
+            const typeFilter = ticketTypeFilter.value;
+            let filteredTickets = [...tickets];
+            if (searchValue) {
+                filteredTickets = filteredTickets.filter(t => {
+                    if (t.id === searchValue) return true;
+                    const customer = customers.find(c => c.id === t.customerId);
+                    if (customer) {
+                        if (customer.name.includes(searchValue)) return true;
+                        if (customer.phone === searchValue || customer.phone2 === searchValue) return true;
+                    }
+                    return false;
+                });
+            }
+            if (statusFilter !== 'all') {
+                filteredTickets = filteredTickets.filter(t => t.status === statusFilter);
+            }
+            if (typeFilter !== 'all') {
+                filteredTickets = filteredTickets.filter(t => t.type === typeFilter);
+            }
+            filteredTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            currentlyDisplayedTickets = filteredTickets;
+            loadAdminTickets(filteredTickets);
+        });
+        ticketStatusFilter.addEventListener('change', function() {
+            adminSearchBtn.click();
+        });
+        ticketTypeFilter.addEventListener('change', function() {
+            adminSearchBtn.click();
+        });
+            
+        // عدل دالة loadAdminTickets لتحديث currentlyDisplayedTickets دائمًا
+        function loadAdminTickets(customTickets) {
+            const searchValue = adminSearch.value.trim();
+            const statusFilter = ticketStatusFilter.value;
+            const typeFilter = ticketTypeFilter.value;
+            let filteredTickets = customTickets ? [...customTickets] : [...tickets];
+            if (searchValue) {
+                filteredTickets = filteredTickets.filter(t => {
+                    if (t.id === searchValue) return true;
+                    const customer = customers.find(c => c.id === t.customerId);
+                    if (customer) {
+                        if (customer.name.includes(searchValue)) return true;
+                        if (customer.phone === searchValue || customer.phone2 === searchValue) return true;
+                    }
+                    return false;
+                });
+            }
+            if (statusFilter !== 'all') {
+                filteredTickets = filteredTickets.filter(t => t.status === statusFilter);
+            }
+            if (typeFilter !== 'all') {
+                filteredTickets = filteredTickets.filter(t => t.type === typeFilter);
+            }
+            filteredTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            currentlyDisplayedTickets = filteredTickets;
+            if (adminTicketsViewMode === 'table') {
+                renderAdminTicketsTable(filteredTickets);
+            } else {
+                adminTicketsList.innerHTML = '';
+                if (filteredTickets.length === 0) {
+                    adminTicketsList.innerHTML = '<p>No Tickets   </p>';
+                } else {
+                    filteredTickets.forEach(ticket => {
+                        const col = document.createElement('div');
+                        col.className = 'col-md-6';
+                        const ticketCard = createTicketCard(ticket, true);
+                        col.appendChild(ticketCard);
+                        adminTicketsList.appendChild(col);
+                    });
+                }
+            }
+        }
+
+        // زر استخراج ملف إكسل يصدر التذاكر المعروضة فقط
+        exportExcelBtn.addEventListener('click', function() {
+            const exportTickets = currentlyDisplayedTickets.length > 0 ? currentlyDisplayedTickets : tickets;
+            if (exportTickets.length === 0) {
+                showToast('No Tickets to export', 'error');
+                return;
+            }
+            const data = exportTickets.map(t => {
+                const customer = customers.find(c => c.id === t.customerId) || {};
+                return {
+                    'Ticket Number': t.id,
+                    'Ticket Type': t.type === 'inquiry' ? 'Inquiry' : t.type === 'complaint' ? 'Complaint' : 'Maintenance',
+                    'Type': t.subtype,
+                    'Description': t.description,
+                    'Ticket Date': t.date,
+                    'Employee': t.employee,
+                    'Status': t.status === 'open' ? 'Open' : t.status === 'closed' ? 'Closed' : 'Pending',
+                    'Customer Name': customer.name || '',
+                    'Phone Number': customer.phone || '',
+                    'Phone Number (Optional)': t.phone2 || customer.phone2 || '',
+                    'Governorate': customer.governorate || '',
+                    'Area and Address': customer.region || '',
+                    'Reply': t.adminReply || '',
+                    'Maintenance Date': t.type === 'maintenance' && t.schedule ? t.schedule.replace('T', ' ') : '',
+                    'Note': t.type === 'maintenance' ? (t.note || '') : ''
+                };
+            });
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Tickets');
+            // تحديد اسم الملف بناءً على تاريخ البحث
+            let filename = 'tickets.xlsx';
+            const dateVal = adminDateFilter.value;
+            if (dateVal) {
+                filename = `tickets_${dateVal}.xlsx`;
+            }
+            XLSX.writeFile(wb, filename);
+        });
+
+        // بحث تذاكر الصيانة حسب الموعد
+        maintenanceDateSearchBtn.addEventListener('click', function() {
+            const date = maintenanceDateFilter.value;
+            if (!date) {
+                showToast('Please select the maintenance date first', 'error');
+                return;
+            }
+            // ابحث فقط في تذاكر الصيانة التي لها موعد
+            maintenanceDateTickets = tickets.filter(t => t.type === 'maintenance' && t.schedule && t.schedule.startsWith(date));
+            currentlyDisplayedTickets = maintenanceDateTickets;
+            loadAdminTickets(maintenanceDateTickets);
+        });
+
+        // دالة عرض Toast احترافي
+        function showToast(message, type = 'info', duration = 2500) {
+            const toastContainer = document.getElementById('toast-container');
+            toastContainer.innerHTML = `<div class='custom-toast ${type}'>${message}</div>`;
+            toastContainer.style.display = 'block';
+            setTimeout(() => {
+                toastContainer.style.display = 'none';
+                toastContainer.innerHTML = '';
+            }, duration);
+        }
+
+        toggleAdminViewBtn.addEventListener('click', function() {
+            adminTicketsViewMode = adminTicketsViewMode === 'card' ? 'table' : 'card';
+            toggleAdminViewBtn.innerHTML = adminTicketsViewMode === 'card' ? '<i class="bi bi-table"></i>' : '<i class="bi bi-card-list"></i>';
+            loadAdminTickets();
+        });
+
+        function renderAdminTicketsTable(tickets) {
+            if (!tickets || tickets.length === 0) {
+                adminTicketsList.innerHTML = '<p>No Tickets </p>';
+                return;
+            }
+            let table = `<div class="table-responsive"><table class="table table-bordered table-striped align-middle text-center">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Ticket #</th>
+                        <th>Type</th>
+                        <th>Subtype</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                        <th>Employee</th>
+                        <th>Status</th>
+                        <th>Reply</th>
+                        <th>Note</th>
+                        <th>Maintenance Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+            tickets.forEach(ticket => {
+                const customer = customers.find(c => c.id === ticket.customerId) || {};
+                table += `<tr data-id="${ticket.id}">
+                    <td>${ticket.id}</td>
+                    <td>${ticket.type === 'inquiry' ? 'Inquiry' : ticket.type === 'complaint' ? 'Complaint' : 'Maintenance'}</td>
+                    <td>${ticket.subtype || ''}</td>
+                    <td>${ticket.description || ''}</td>
+                    <td>${ticket.date || ''}</td>
+                    <td>${ticket.employee || ''}</td>
+                    <td>
+                        <select class="form-select form-select-sm admin-status-select" style="min-width:90px;">
+                            <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>Open</option>
+                            <option value="closed" ${ticket.status === 'closed' ? 'selected' : ''}>Closed</option>
+                            <option value="pending" ${ticket.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        </select>
+                    </td>
+                    <td>${ticket.type === 'complaint' ? `<textarea class="form-control form-control-sm admin-reply-input" rows="1" style="min-width:120px;">${ticket.adminReply || ''}</textarea>` : ''}</td>
+                    <td>${ticket.type === 'maintenance' ? `<textarea class="form-control form-control-sm admin-note-input" rows="1" style="min-width:120px;">${ticket.note || ''}</textarea>` : ''}</td>
+                    <td>${ticket.type === 'maintenance' && ticket.schedule ? ticket.schedule.replace('T', ' ') : ''}</td>
+                    <td>
+                        ${ticket.type === 'complaint' ? `<button class="btn btn-sm btn-primary save-reply-btn">Save</button>` : ''}
+                        ${ticket.type === 'maintenance' ? `<button class="btn btn-sm btn-primary save-note-btn">Save</button>` : ''}
+                    </td>
+                </tr>`;
+            });
+            table += '</tbody></table></div>';
+            adminTicketsList.innerHTML = table;
+
+            // Event: status change
+            document.querySelectorAll('.admin-status-select').forEach(select => {
+                select.addEventListener('change', function(e) {
+                    const row = e.target.closest('tr');
+                    const ticketId = row.getAttribute('data-id');
+                    updateTicketStatus(ticketId, this.value);
+                });
+            });
+            // Event: save reply
+            document.querySelectorAll('.save-reply-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const row = e.target.closest('tr');
+                    const ticketId = row.getAttribute('data-id');
+                    const reply = row.querySelector('.admin-reply-input').value;
+                    updateAdminReply(ticketId, reply);
+                });
+            });
+            // Event: save note
+            document.querySelectorAll('.save-note-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    const row = e.target.closest('tr');
+                    const ticketId = row.getAttribute('data-id');
+                    const note = row.querySelector('.admin-note-input').value;
+                    updateMaintenanceNote(ticketId, note);
+                });
+            });
+        }
+
+        // حذف التذكرة
+        function deleteTicket(ticketId) {
+            const idx = tickets.findIndex(t => t.id === ticketId);
+            if (idx !== -1) {
+                tickets.splice(idx, 1);
+                showToast('Ticket deleted successfully', 'success');
+                loadAdminTickets();
+                if (currentCustomer) {
+                    showCustomerProfile(currentCustomer);
+                }
+            }
+        }
+    </script>
+    <!-- Custom Footer -->
+    <div class="custom-footer" id="login-footer">
+        <div class="footer-title">By Eng: <span class="main-blue-title">Ahmed Mohamed</span></div>
+        <div class="footer-icons">
+            <a href="https://www.facebook.com/ahmed.mohamed.857575" class="facebook" target="_blank" title="Facebook"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.instagram.com/ahmed_mohamed_40/?__pwa=1" class="instagram" target="_blank" title="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.linkedin.com/in/ahmed-mohamed-596713279/" class="linkedin" target="_blank" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+        </div>
+    </div>
+</body>
+</html>
