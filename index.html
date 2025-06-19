@@ -1343,26 +1343,21 @@
         // إضافة تذكرة جديدة
         newTicketForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
             if (!currentCustomer) {
                 alert('الرجاء تحديد عميل أولاً');
                 return;
             }
-            
             const type = ticketType.value;
             const subtype = ticketSubtype.value;
             const description = document.getElementById('ticket-description').value;
             const date = document.getElementById('ticket-date').value;
             const employee = document.getElementById('employee-name').value;
             const customerId = document.getElementById('customer-id').value;
-            
             if (!type || !subtype || !description || !date) {
                 showToast('Please fill in all required fields', 'error');
                 return;
             }
-            
             const newTicket = {
-                id: getNextTicketId(),
                 type,
                 subtype,
                 description,
@@ -1373,7 +1368,6 @@
                 status: type === 'inquiry' ? 'closed' : 'open',
                 createdAt: new Date().toISOString()
             };
-            
             if (type === 'maintenance') {
                 const schedule = document.getElementById('maintenance-schedule').value;
                 if (!schedule) {
@@ -1382,15 +1376,11 @@
                 }
                 newTicket.schedule = schedule;
             }
-            
-            tickets.push(newTicket);
-            showToast('Ticket saved successfully', 'success');
-            clearTicketForm();
-            
-            // تحديث عرض التذاكر
-            if (currentCustomer) {
-                showCustomerProfile(currentCustomer);
-            }
+            db.collection('tickets').add(newTicket).then(() => {
+                showToast('Ticket saved successfully', 'success');
+                clearTicketForm();
+                // سيتم تحديث الواجهة تلقائياً عبر onSnapshot
+            });
         });
 
         // تفريغ نموذج التذكرة
@@ -1436,40 +1426,33 @@
         // حفظ عميل جديد
         customerForm.addEventListener('submit', function(e) {
             e.preventDefault();
-            
             const name = document.getElementById('new-customer-name').value;
             const phone = document.getElementById('new-customer-phone').value;
             const phone2 = document.getElementById('new-customer-phone2').value;
             const governorate = document.getElementById('new-customer-governorate').value;
             const region = document.getElementById('new-customer-region').value;
-            
             if (!name || !phone || !governorate || !region) {
                 alert('الرجاء ملء جميع الحقول المطلوبة');
                 return;
             }
-            
             // التحقق من عدم وجود عميل بنفس رقم الهاتف
             const existingCustomer = customers.find(c => c.phone === phone || (phone2 && c.phone2 === phone2));
             if (existingCustomer) {
                 showToast('يوجد بالفعل عميل بهذا الرقم!', 'error');
                 return;
             }
-            
             const newCustomer = {
-                id: generateId(),
                 name,
                 phone,
                 phone2,
                 governorate,
                 region
             };
-            
-            customers.push(newCustomer);
-            showToast('Customer saved successfully', 'success');
-            
-            // تفعيل لوحة الموظف ثم عرض بروفايل العميل الجديد
-            showEmployeeDashboard();
-            showCustomerProfile(newCustomer);
+            db.collection('customers').add(newCustomer).then(() => {
+                showToast('Customer saved successfully', 'success');
+                showEmployeeDashboard();
+                // سيتم تحديث الواجهة تلقائياً عبر onSnapshot
+            });
         });
 
         // إلغاء إنشاء عميل جديد
@@ -1530,327 +1513,30 @@
 
         // تحديث حالة التذكرة
         function updateTicketStatus(ticketId, newStatus) {
-            const ticketIndex = tickets.findIndex(t => t.id === ticketId);
-            
-            if (ticketIndex !== -1) {
-                tickets[ticketIndex].status = newStatus;
+            db.collection('tickets').doc(ticketId).update({ status: newStatus }).then(() => {
                 showToast('Ticket status updated', 'success');
-                loadAdminTickets();
-                
-                // إذا كان العميل معروضًا، قم بتحديث عرض التذاكر
-                if (currentCustomer) {
-                    showCustomerProfile(currentCustomer);
-                }
-            }
+            });
         }
 
         // تحديث رد المدير على الشكوى
         function updateAdminReply(ticketId, reply) {
-            const ticketIndex = tickets.findIndex(t => t.id === ticketId);
-            
-            if (ticketIndex !== -1) {
-                tickets[ticketIndex].adminReply = reply;
-                showToast(' reply saved', 'success');
-                loadAdminTickets();
-                
-                // إذا كان العميل معروضًا، قم بتحديث عرض التذاكر
-                if (currentCustomer) {
-                    showCustomerProfile(currentCustomer);
-                }
-            }
+            db.collection('tickets').doc(ticketId).update({ adminReply: reply }).then(() => {
+                showToast('Reply saved', 'success');
+            });
         }
 
         // أضف دالة تحديث الملحوظة بعد دالة updateAdminReply مباشرة
         function updateMaintenanceNote(ticketId, note) {
-            const ticketIndex = tickets.findIndex(t => t.id === ticketId);
-            if (ticketIndex !== -1) {
-                tickets[ticketIndex].note = note;
+            db.collection('tickets').doc(ticketId).update({ note: note }).then(() => {
                 showToast('Note saved', 'success');
-                loadAdminTickets();
-                if (currentCustomer) {
-                    showCustomerProfile(currentCustomer);
-                }
-            }
-        }
-
-        // وظائف مساعدة
-        function generateId() {
-            return Math.floor(Math.random() * 1000000).toString();
-        }
-
-        function addSampleData() {
-            // عملاء وهميين
-            customers = [
-                
-            ];
-            
-            // حذف التذاكر الوهمية
-            tickets = [];
-        }
-
-        // عند عرض بروفايل العميل أو فتح نموذج التذكرة الجديدة، يتم تعيين تاريخ اليوم تلقائيًا
-        function setTodayForTicketDate() {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            document.getElementById('ticket-date').value = `${yyyy}-${mm}-${dd}`;
-        }
-
-        // منطق توليد رقم التذكرة يبدأ من 1000 ويزيد واحد مع كل تذكرة جديدة
-        function getNextTicketId() {
-            if (tickets.length === 0) return '1000';
-            const maxId = Math.max(...tickets.map(t => parseInt(t.id, 10)));
-            return (maxId + 1).toString();
-        }
-
-        // عند البحث بالتاريخ أو أي بحث آخر، احفظ النتائج في currentlyDisplayedTickets
-        adminDateSearchBtn.addEventListener('click', function() {
-            const date = adminDateFilter.value;
-            if (!date) {
-                showToast('Please select a date first', 'error');
-                return;
-            }
-            currentlyDisplayedTickets = tickets.filter(t => t.date === date);
-            loadAdminTickets(currentlyDisplayedTickets);
-        });
-
-        // عند البحث بالنص أو الفلاتر الأخرى، احفظ النتائج أيضًا
-        adminSearchBtn.addEventListener('click', function() {
-            // استخدم نفس منطق loadAdminTickets
-            const searchValue = adminSearch.value.trim();
-            const statusFilter = ticketStatusFilter.value;
-            const typeFilter = ticketTypeFilter.value;
-            let filteredTickets = [...tickets];
-            if (searchValue) {
-                filteredTickets = filteredTickets.filter(t => {
-                    if (t.id === searchValue) return true;
-                    const customer = customers.find(c => c.id === t.customerId);
-                    if (customer) {
-                        if (customer.name.includes(searchValue)) return true;
-                        if (customer.phone === searchValue || customer.phone2 === searchValue) return true;
-                    }
-                    return false;
-                });
-            }
-            if (statusFilter !== 'all') {
-                filteredTickets = filteredTickets.filter(t => t.status === statusFilter);
-            }
-            if (typeFilter !== 'all') {
-                filteredTickets = filteredTickets.filter(t => t.type === typeFilter);
-            }
-            filteredTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            currentlyDisplayedTickets = filteredTickets;
-            loadAdminTickets(filteredTickets);
-        });
-        ticketStatusFilter.addEventListener('change', function() {
-            adminSearchBtn.click();
-        });
-        ticketTypeFilter.addEventListener('change', function() {
-            adminSearchBtn.click();
-        });
-            
-        // عدل دالة loadAdminTickets لتحديث currentlyDisplayedTickets دائمًا
-        function loadAdminTickets(customTickets) {
-            const searchValue = adminSearch.value.trim();
-            const statusFilter = ticketStatusFilter.value;
-            const typeFilter = ticketTypeFilter.value;
-            let filteredTickets = customTickets ? [...customTickets] : [...tickets];
-            if (searchValue) {
-                filteredTickets = filteredTickets.filter(t => {
-                    if (t.id === searchValue) return true;
-                    const customer = customers.find(c => c.id === t.customerId);
-                    if (customer) {
-                        if (customer.name.includes(searchValue)) return true;
-                        if (customer.phone === searchValue || customer.phone2 === searchValue) return true;
-                    }
-                    return false;
-                });
-            }
-            if (statusFilter !== 'all') {
-                filteredTickets = filteredTickets.filter(t => t.status === statusFilter);
-            }
-            if (typeFilter !== 'all') {
-                filteredTickets = filteredTickets.filter(t => t.type === typeFilter);
-            }
-            filteredTickets.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-            currentlyDisplayedTickets = filteredTickets;
-            if (adminTicketsViewMode === 'table') {
-                renderAdminTicketsTable(filteredTickets);
-            } else {
-                adminTicketsList.innerHTML = '';
-                if (filteredTickets.length === 0) {
-                    adminTicketsList.innerHTML = '<p>No Tickets   </p>';
-                } else {
-                    filteredTickets.forEach(ticket => {
-                        const col = document.createElement('div');
-                        col.className = 'col-md-6';
-                        const ticketCard = createTicketCard(ticket, true);
-                        col.appendChild(ticketCard);
-                        adminTicketsList.appendChild(col);
-                    });
-                }
-            }
-        }
-
-        // زر استخراج ملف إكسل يصدر التذاكر المعروضة فقط
-        exportExcelBtn.addEventListener('click', function() {
-            const exportTickets = currentlyDisplayedTickets.length > 0 ? currentlyDisplayedTickets : tickets;
-            if (exportTickets.length === 0) {
-                showToast('No Tickets to export', 'error');
-                return;
-            }
-            const data = exportTickets.map(t => {
-                const customer = customers.find(c => c.id === t.customerId) || {};
-                return {
-                    'Ticket Number': t.id,
-                    'Ticket Type': t.type === 'inquiry' ? 'Inquiry' : t.type === 'complaint' ? 'Complaint' : 'Maintenance',
-                    'Type': t.subtype,
-                    'Description': t.description,
-                    'Ticket Date': t.date,
-                    'Employee': t.employee,
-                    'Status': t.status === 'open' ? 'Open' : t.status === 'closed' ? 'Closed' : 'Pending',
-                    'Customer Name': customer.name || '',
-                    'Phone Number': customer.phone || '',
-                    'Phone Number (Optional)': t.phone2 || customer.phone2 || '',
-                    'Governorate': customer.governorate || '',
-                    'Area and Address': customer.region || '',
-                    'Reply': t.adminReply || '',
-                    'Maintenance Date': t.type === 'maintenance' && t.schedule ? t.schedule.replace('T', ' ') : '',
-                    'Note': t.type === 'maintenance' ? (t.note || '') : ''
-                };
-            });
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Tickets');
-            // تحديد اسم الملف بناءً على تاريخ البحث
-            let filename = 'tickets.xlsx';
-            const dateVal = adminDateFilter.value;
-            if (dateVal) {
-                filename = `tickets_${dateVal}.xlsx`;
-            }
-            XLSX.writeFile(wb, filename);
-        });
-
-        // بحث تذاكر الصيانة حسب الموعد
-        maintenanceDateSearchBtn.addEventListener('click', function() {
-            const date = maintenanceDateFilter.value;
-            if (!date) {
-                showToast('Please select the maintenance date first', 'error');
-                return;
-            }
-            // ابحث فقط في تذاكر الصيانة التي لها موعد
-            maintenanceDateTickets = tickets.filter(t => t.type === 'maintenance' && t.schedule && t.schedule.startsWith(date));
-            currentlyDisplayedTickets = maintenanceDateTickets;
-            loadAdminTickets(maintenanceDateTickets);
-        });
-
-        // دالة عرض Toast احترافي
-        function showToast(message, type = 'info', duration = 2500) {
-            const toastContainer = document.getElementById('toast-container');
-            toastContainer.innerHTML = `<div class='custom-toast ${type}'>${message}</div>`;
-            toastContainer.style.display = 'block';
-            setTimeout(() => {
-                toastContainer.style.display = 'none';
-                toastContainer.innerHTML = '';
-            }, duration);
-        }
-
-        toggleAdminViewBtn.addEventListener('click', function() {
-            adminTicketsViewMode = adminTicketsViewMode === 'card' ? 'table' : 'card';
-            toggleAdminViewBtn.innerHTML = adminTicketsViewMode === 'card' ? '<i class="bi bi-table"></i>' : '<i class="bi bi-card-list"></i>';
-            loadAdminTickets();
-        });
-
-        function renderAdminTicketsTable(tickets) {
-            if (!tickets || tickets.length === 0) {
-                adminTicketsList.innerHTML = '<p>No Tickets </p>';
-                return;
-            }
-            let table = `<div class="table-responsive"><table class="table table-bordered table-striped align-middle text-center">
-                <thead class="table-primary">
-                    <tr>
-                        <th>Ticket #</th>
-                        <th>Type</th>
-                        <th>Subtype</th>
-                        <th>Description</th>
-                        <th>Date</th>
-                        <th>Employee</th>
-                        <th>Status</th>
-                        <th>Reply</th>
-                        <th>Note</th>
-                        <th>Maintenance Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>`;
-            tickets.forEach(ticket => {
-                const customer = customers.find(c => c.id === ticket.customerId) || {};
-                table += `<tr data-id="${ticket.id}">
-                    <td>${ticket.id}</td>
-                    <td>${ticket.type === 'inquiry' ? 'Inquiry' : ticket.type === 'complaint' ? 'Complaint' : 'Maintenance'}</td>
-                    <td>${ticket.subtype || ''}</td>
-                    <td>${ticket.description || ''}</td>
-                    <td>${ticket.date || ''}</td>
-                    <td>${ticket.employee || ''}</td>
-                    <td>
-                        <select class="form-select form-select-sm admin-status-select" style="min-width:90px;">
-                            <option value="open" ${ticket.status === 'open' ? 'selected' : ''}>Open</option>
-                            <option value="closed" ${ticket.status === 'closed' ? 'selected' : ''}>Closed</option>
-                            <option value="pending" ${ticket.status === 'pending' ? 'selected' : ''}>Pending</option>
-                        </select>
-                    </td>
-                    <td>${ticket.type === 'complaint' ? `<textarea class="form-control form-control-sm admin-reply-input" rows="1" style="min-width:120px;">${ticket.adminReply || ''}</textarea>` : ''}</td>
-                    <td>${ticket.type === 'maintenance' ? `<textarea class="form-control form-control-sm admin-note-input" rows="1" style="min-width:120px;">${ticket.note || ''}</textarea>` : ''}</td>
-                    <td>${ticket.type === 'maintenance' && ticket.schedule ? ticket.schedule.replace('T', ' ') : ''}</td>
-                    <td>
-                        ${ticket.type === 'complaint' ? `<button class="btn btn-sm btn-primary save-reply-btn">Save</button>` : ''}
-                        ${ticket.type === 'maintenance' ? `<button class="btn btn-sm btn-primary save-note-btn">Save</button>` : ''}
-                    </td>
-                </tr>`;
-            });
-            table += '</tbody></table></div>';
-            adminTicketsList.innerHTML = table;
-
-            // Event: status change
-            document.querySelectorAll('.admin-status-select').forEach(select => {
-                select.addEventListener('change', function(e) {
-                    const row = e.target.closest('tr');
-                    const ticketId = row.getAttribute('data-id');
-                    updateTicketStatus(ticketId, this.value);
-                });
-            });
-            // Event: save reply
-            document.querySelectorAll('.save-reply-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    const row = e.target.closest('tr');
-                    const ticketId = row.getAttribute('data-id');
-                    const reply = row.querySelector('.admin-reply-input').value;
-                    updateAdminReply(ticketId, reply);
-                });
-            });
-            // Event: save note
-            document.querySelectorAll('.save-note-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    const row = e.target.closest('tr');
-                    const ticketId = row.getAttribute('data-id');
-                    const note = row.querySelector('.admin-note-input').value;
-                    updateMaintenanceNote(ticketId, note);
-                });
             });
         }
 
         // حذف التذكرة
         function deleteTicket(ticketId) {
-            const idx = tickets.findIndex(t => t.id === ticketId);
-            if (idx !== -1) {
-                tickets.splice(idx, 1);
+            db.collection('tickets').doc(ticketId).delete().then(() => {
                 showToast('Ticket deleted successfully', 'success');
-                loadAdminTickets();
-                if (currentCustomer) {
-                    showCustomerProfile(currentCustomer);
-                }
-            }
+            });
         }
 
         // تحميل العملاء والتذاكر من Firestore في الوقت الحقيقي
